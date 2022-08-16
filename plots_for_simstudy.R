@@ -1,5 +1,20 @@
+# Code to create figures for results from simulation study
+# Olivia Bernstein Morgan
+
 library(RColorBrewer)
-source("~/Dropbox/helper.R")
+
+# round variable and set the numebr of trailing 0's
+rnd = function(x, n.dig){format(round(x, digits = n.dig), nsmall = n.dig)}
+
+smooth.plot = function(x,y, n.point = 100, alpha = 0.8){
+  # takes x and y and returns points for a smoothed line
+  # with n.point number of points
+  
+  x.smooth = seq(min(x),max(x),length.out = n.point)
+  y.smooth = predict(loess(y~x, span = alpha), newdata = x.smooth)
+  out = data.frame(x = x.smooth, y = y.smooth)
+  return(out)
+}
 
 
 make.plot.smooth.coefX = function(coef.save, 
@@ -220,7 +235,6 @@ pdf(paste0(path,"figures/varycorr.pdf"),
 par(mfrow = c(1,1), 
     mar = c(3.1, 3.1, 1.6, .6), 
     oma = c(.3,.3,.5,6.3), xpd = NA)
-)
 
 c.list = c(.05*(1:19),.96,.97,.98,.99,.999,1)
 
