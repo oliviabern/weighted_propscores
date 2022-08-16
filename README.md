@@ -20,3 +20,8 @@ has comments telling you which results are needed to create each plot.
 
 The results and plot for Figure 5 are created with simstudy_withSE.R
 
+## Applied Example from Section 4
+
+Code to clean the NACC data is in applied_example_clean_NACC.R and code to create Table 1 and Figure 6 is in applied_example_run_analysis.R
+
+Note that you will need to use NHANES as a representative dataset and code to clean that data is in the estweight_simulationstudy repository. NACC data needs to be requested from https://naccdata.org/
