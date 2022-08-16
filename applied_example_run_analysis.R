@@ -38,12 +38,12 @@ robust.vcov.glm <- function(glm.obj){
 
 #### Estimate sampling weights ####
 
-# load nhanes data (code for creating nhanes_rep is in my estweight_simulation study repository)
+# load nhanes data (code for creating nhanes_rep is in my estweight_simulationstudy repository)
 nhanes_rep_full = read.csv("~/nhanes_rep.csv") # NHANES-REP
 
 # load cleaned NACC data (from applied_example_clean_NACC.R)
 load("~/nacc.RData")
-
+a
 # combine nursing (n=4) and assisted living (n=55) to allow for imputation
 nacc$living = ifelse(nacc$living=="nursing","assistedliving",nacc$living)
 # combine 4/completely dependence (n=7) and 3/requires some indpenedence (n=87)
