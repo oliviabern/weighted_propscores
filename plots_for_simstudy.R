@@ -275,7 +275,7 @@ pdf(paste0(path,"figures/varycoef_cor1.pdf"),
 
 par(mfrow = c(2,3), 
     mar = c(3.1, 3.1, 1.6, .6), 
-    oma = c(.3,.3,2.5,11), xpd = NA)
+    oma = c(.3,.3,2.5,10), xpd = NA)
 
 beta.list = (-10:10)/2
 
@@ -325,7 +325,7 @@ legend(5.2,3.5,
                                              "\nWeight both models\nEst. prop score"))),
        col = c("black","black",cols[1], cols[1],cols[2:3],cols[3:4],cols[4:5]), lwd = rep(2,8),
        lty = c(1,3,1,3,1,1,3,1),
-       bty = 'n', cex = 1,
+       bty = 'n', cex = .94,
        y.intersp=2.1)
 
 # results from simstudy_vary_X3.R
@@ -483,16 +483,17 @@ data.comb = rbind(data1, data2)
 data.comb$model = as.factor(data.comb$model)
 
 jpeg(paste0(path,"figures/vary_promodel_X2.jpeg"),
-    width = 8.5, height = 5, 
-    units = "in", res = 1000)
+     width = 8.5, height = 5, 
+     units = "in", res = 1000)
 
 levelplot(bias_2 ~ K0 * K1 | model, data.comb, 
           panel = panel.2dsmoother, n = 200,
-          xlab = expression(paste(alpha["02"],": Exp. Coef. on K*",X[2], " in Propensity Model")),
-          ylab = expression(paste(alpha["12"],": Exp. Coef. on (1-K)*",X[2], " in Propensity Model")),
-          main = "Bias in Treatment Effect Estimate Relative to SRS",
+          xlab = expression(paste(alpha["02"],": Exp. Coef. on (1-K)*",X[2], " in Propensity Model")),
+          ylab = expression(paste(alpha["12"],": Exp. Coef. on K*",X[2], " in Propensity Model")),
+          main = "Absolute Bias in Treatment Effect Estimate Relative to SRS",
           col.regions = viridis(100), 
-          at = .05*(-1:13), # functions as a zlim
+          contour = TRUE,
+          at = .025*(-2:26), # functions as a zlim
           scales = list(alternating = 1, tck = c(1,0)), 
           strip = strip.custom(bg = "grey90"))
 
@@ -504,11 +505,12 @@ jpeg(paste0(path,"figures/vary_promodel_X3.jpeg"),
 
 levelplot(bias_3 ~ K0 * K1 | model, data.comb, 
           panel = panel.2dsmoother, n = 200,
-          xlab = expression(paste(alpha["03"],": Exp. Coef. on K*",X[3], " in Propensity Model")),
-          ylab = expression(paste(alpha["13"],": Exp. Coef. on (1-K)*",X[3], " in Propensity Model")),
-          main = "Bias in Treatment Effect Estimate Relative to SRS",
+          xlab = expression(paste(alpha["03"],": Exp. Coef. on (1-K)*",X[3], " in Propensity Model")),
+          ylab = expression(paste(alpha["13"],": Exp. Coef. on K*",X[3], " in Propensity Model")),
+          main = "Absolute Bias in Treatment Effect Estimate Relative to SRS",
           col.regions = viridis(100), 
-          at = .05*(-1:13), # functions as a zlim
+          contour = TRUE, 
+          at = .025*(-2:26), # functions as a zlim
           scales = list(alternating = 1, tck = c(1,0)), 
           strip = strip.custom(bg = "grey90"))
 

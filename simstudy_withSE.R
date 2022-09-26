@@ -7,14 +7,47 @@ library("tidyverse")
 library("survey")
 library("snowfall")
 library("rlecuyer")
+library("estweight")
 
 n.pop = 50000
 n = 2000
-n.sim = 1000
+n.sim = 500
 
-source("~/Dropbox/UCI/Research/Prediction Assessment/weighted_propensity_scores/variance estimate function.R")
-source("~/Documents/UCI/18W/211/Stat211Functions.R")
-source("~/Dropbox/helper.R")
+# source("~/Documents/UCI/18W/211/Stat211Functions.R")
+# source("~/Dropbox/helper.R")
+
+## function from Dan Gillen's 211 code for estimating the robust sandwich se estimate
+#####	robust.se.lm() is a function to compute the Huber-White sandwich variance estimator
+#####	for the linear regression model
+#####	
+##
+robust.se.lm <- function( model) { 
+  s <- summary( model) 
+  X <- model.matrix( model )
+  sandwich.cov <- robust.vcov.lm( model )
+  sand.se <- sqrt( diag( sandwich.cov )) 
+  t <- model$coefficients/sand.se
+  p <- 2*pt( -abs( t ), dim(X)[1]-dim(X)[2] ) 
+  ci95.lo <- model$coefficients - qt( .975, dim(X)[1]-dim(X)[2] ) * sand.se
+  ci95.hi <- model$coefficients + qt( .975, dim(X)[1]-dim(X)[2] ) * sand.se
+  rslt <- cbind( model$coefficients, sand.se, ci95.lo, ci95.hi, t, p ) 
+  dimnames(rslt)[[2]] <- c( dimnames( s$coefficients )[[2]][1], "Robust SE", "ci95.lo", "ci95.hi", dimnames( s$coefficients )[[2]][3:4] ) 
+  rslt 
+} 
+
+##
+##### 	Compute robust (sandwich) variance-covariance estimate for a LM
+##
+robust.vcov.lm <- function( lm.obj ){
+  X <- model.matrix( lm.obj )
+  eps <- lm.obj$residuals
+  robust.cov <- solve( t(X)%*%X ) %*%( t(X) %*% diag(eps^2) %*% X ) %*% solve( t(X)%*%X )
+  dimnames( robust.cov ) <- dimnames( vcov(lm.obj) )
+  return( robust.cov )
+}
+
+# round variable and set the numebr of trailing 0's
+rnd = function(x, n.dig){format(round(x, digits = n.dig), nsmall = n.dig)}
 
 expit <- function(x){exp(x)/(1+exp(x))}
 logit = function(x){log(x/(1-x))}
@@ -37,7 +70,7 @@ beta.k.x2.2 = 2
 beta.1_k.x3 = .4#~.83
 beta.k.x3.2 = 1.5
 
-corr = .9
+corr = 1
 
 set.seed(1364401596)
 
@@ -444,7 +477,7 @@ string = paste0(rnd(pt.est,2),
 # Pick spots on y-axis for plotting
 y = length(pt.est):1
 
-pdf("~/Dropbox/UCI/Research/Prediction Assessment/weighted_propensity_scores/simstudy/figures/simstudy_withSE.pdf",
+pdf("~/Dropbox/UCI/Research/Prediction Assessment/weighted_propensity_scores/simstudy/figures/simstudy_withSE_cor1.pdf",
     width = 6.5, height = 3.5)
 
 # change plotting parameters to leave room for text
@@ -454,7 +487,7 @@ par(oma = c(0,13,0,9.3) + 0.1, # adjust the second entry in the oma command to s
 
 plot(pt.est,y,
      #xlim = range(c(ci.lo,ci.hi)),
-     xlim = c(0,5),
+     xlim = c(0,5.8),
      ylim = c(min(y)-1,max(y)+1),
      yaxt = 'n', cex = 1.5, 
      pch = 18, ylab = "", xlab = "Mean (95% CI)",
@@ -494,13 +527,17 @@ mtext(rnd(se.comparemethods[c(1,4:2),2],2),
       4, line = 8.25, font = 1, cex = 1.1,
       las = 2, at = (8:5)/2, adj = 0)
 
-segments(x0 = 5.5, y0 = 5.5, y1 = 2)
-segments(x0 = 9.6, y0 = 4.5, y1 = 2)
-segments(x0 = 11.6, y0 = 5.5, y1 = 2)
+left.x = 6.3 # was 5.5
+mid.x = 11.2 # was 9.6
+right.x = 13.4 # was 11.6
 
-segments(x0 = 5.5, x1 = 11.6, y0 = 5.5)
-segments(x0 = 5.5, x1 = 11.6, y0 = 2)
-segments(x0 = 5.5, x1 = 11.6, y0 = 4.5)
+segments(x0 = left.x, y0 = 5.5, y1 = 2)
+segments(x0 = mid.x, y0 = 4.5, y1 = 2)
+segments(x0 = right.x, y0 = 5.5, y1 = 2)
+
+segments(x0 = left.x, x1 = right.x, y0 = 5.5)
+segments(x0 = left.x, x1 = right.x, y0 = 2)
+segments(x0 = left.x, x1 = right.x, y0 = 4.5)
 
 mtext("SE Estimate for Estimate\nWith Both Models Weighted",
       4, line = .8, cex = 1.1, 
